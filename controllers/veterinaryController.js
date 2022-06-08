@@ -1,3 +1,4 @@
+import emailSignUp from "../helpers/emailSignUp.js";
 import generateJWT from "../helpers/generateJWT.js";
 import generateToken from "../helpers/generateToken.js";
 import veterinaryModel from "../models/Veterinary.js";
@@ -7,7 +8,7 @@ import veterinaryModel from "../models/Veterinary.js";
 //with this function we signUp a new veterinary with the data send by the user
 export const signUp = async (req, res) => {
     
-    const {email} = req.body;
+    const {email, name} = req.body;
 
     //avoid duplicate veterinaries
     const userExist = await veterinaryModel.findOne({
@@ -24,8 +25,14 @@ export const signUp = async (req, res) => {
 
         //save a new veterinary
         const veterinary = new veterinaryModel(req.body);
-
         const veterinarySaved = await veterinary.save();
+
+        //send the email to confirm the account
+        emailSignUp({
+            email,
+            name,
+            token: veterinarySaved.token
+        });
 
         //response
         res.json(veterinarySaved)
@@ -48,7 +55,9 @@ export const confirm = async (req, res) => {
     const confirmUser = await veterinaryModel.findOne( {token} ); //we search the token in the db
 
     if(!confirmUser) {
+        
         const error = new Error("Token is not valid!");
+        
         return res.status(404).json({msg: error.message});
     }
 
@@ -61,8 +70,6 @@ export const confirm = async (req, res) => {
         console.log(error)
     }
 
-    console.log(confirmUser);
-    res.json({msg: "Confirming the account...."})
 }
 
 //with this we autheticate the user, first check if the email exist
@@ -88,15 +95,14 @@ export const authenticateUser = async (req, res) => {
     //check if the password is correct
     if(await user.checkPassword(password)) {
         console.log("contraseña correcta")
+        //here we generate a json web token with the user id.
+        res.json( {token: generateJWT(user.id), msg:"User exist and is confirmed!!"});
     } else {
         const error = new Error("Password is incorrect, try again!");
         return res.status(403).json({msg: error.message});
     }
 
-    //here we generate a json web token with the user id.
-    res.json( {token: generateJWT(user.id)});
-
-    res.json({msg:"User exist and is confirmed!!"})
+    
 }
 
 export const forgetPassword = async (req, res) => {
