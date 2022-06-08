@@ -55,6 +55,8 @@ veterinarySchema.pre("save", async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
+//here we create a new method for the veterinarymodel to check if the password 
+//we insert into the form is the same as the hash password
 veterinarySchema.methods.checkPassword = async function(formPassword) {
     return await bcrypt.compare(formPassword, this.password)
 }

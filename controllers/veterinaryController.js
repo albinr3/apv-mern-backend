@@ -51,7 +51,7 @@ export const profile = (req, res) => {
 //if it is a valid token so the account get confirmed and the token is deleted.
 export const confirm = async (req, res) => {
     const { token } = req.params;
-
+    console.log("user is almost active")
     const confirmUser = await veterinaryModel.findOne( {token} ); //we search the token in the db
 
     if(!confirmUser) {
@@ -66,6 +66,7 @@ export const confirm = async (req, res) => {
         confirmUser.confirmed = true;
         await confirmUser.save();
         res.json({msg: "User is now active!!"})
+        console.log("user is active")
     } catch (error) {
         console.log(error)
     }
