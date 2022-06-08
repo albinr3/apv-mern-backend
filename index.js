@@ -15,7 +15,7 @@ connectDb();
 //we need this to get the data from the request body on register veterinary
 app.use(express.json());
 
-const allowUrl = ["http://localhost:3000"];
+const allowUrl = [process.env.FRONTEND_URL ];
 
 const corsOptions = {
     origin: function(origin, callback){
