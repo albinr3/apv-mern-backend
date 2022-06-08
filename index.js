@@ -20,7 +20,7 @@ const allowUrl = [process.env.FRONTEND_URL ];
 const corsOptions = {
     origin: function(origin, callback){
         if(allowUrl.indexOf(origin) !== -1){
-            //the origin of the request is allowed
+            //the origin of the request is allowed.
             callback(null, true)
         } else {
             callback(new Error("Not allowed by CORS"))
