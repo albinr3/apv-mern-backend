@@ -1,3 +1,4 @@
+import emailForgotPassword from "../helpers/emailForgotPassword.js";
 import emailSignUp from "../helpers/emailSignUp.js";
 import generateJWT from "../helpers/generateJWT.js";
 import generateToken from "../helpers/generateToken.js";
@@ -51,7 +52,6 @@ export const profile = (req, res) => {
 //if it is a valid token so the account get confirmed and the token is deleted.
 export const confirm = async (req, res) => {
     const { token } = req.params;
-    console.log("user is almost active")
     const confirmUser = await veterinaryModel.findOne( {token} ); //we search the token in the db
 
     if(!confirmUser) {
@@ -120,6 +120,13 @@ export const forgetPassword = async (req, res) => {
         veterinaryExist.token = generateToken();
         await veterinaryExist.save();
 
+        //send the email to reset the password
+        emailForgotPassword({
+            email,
+            token: veterinaryExist.token,
+            name: veterinaryExist.name
+        });
+
         res.json({msg: "We sent an email with the info" })
     } catch (error) {
         console.log(error)
@@ -132,10 +139,11 @@ export const checkTokenPassword = async (req, res) => {
     const validToken = await veterinaryModel.findOne({token});
 
     if(validToken) {
-        res.json({msg: "Token is valid and the user exist"});
+        
+        res.json({msg: "Please write a new password"});
 
     } else {
-        const error = new Error("Token is not valid!");
+        const error = new Error("Url is not valid!");
         return res.status(400).json({msg: error.message});
     }
 }
