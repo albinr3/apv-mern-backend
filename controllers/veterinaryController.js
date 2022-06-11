@@ -81,7 +81,7 @@ export const authenticateUser = async (req, res) => {
 
     //check if the user exist
     const user = await veterinaryModel.findOne({email});
-
+    console.log(user)
     if(!user) {
         const error = new Error("User does not exist!");
         return res.status(403).json({msg: error.message});
@@ -96,8 +96,8 @@ export const authenticateUser = async (req, res) => {
     //check if the password is correct
     if(await user.checkPassword(password)) {
         console.log("contraseña correcta")
-        //here we generate a json web token with the user id.
-        res.json( {token: generateJWT(user.id), msg:"User exist and is confirmed!!"});
+        //here we generate a json web token with the user id and we pass the res.
+        res.json( {profile: {_id: user._id, token: generateJWT(user.id)}, msg: "User exist and is confirmed!!"});
     } else {
         const error = new Error("Password is incorrect, try again!");
         return res.status(403).json({msg: error.message});
