@@ -97,7 +97,7 @@ export const authenticateUser = async (req, res) => {
     if(await user.checkPassword(password)) {
         console.log("contraseña correcta")
         //here we generate a json web token with the user id and we pass the res.
-        res.json( {profile: {_id: user._id, token: generateJWT(user.id)}, msg: "User exist and is confirmed!!"});
+        res.json( {profile: {_id: user._id, token: generateJWT(user.id)}});
     } else {
         const error = new Error("Password is incorrect, try again!");
         return res.status(403).json({msg: error.message});
@@ -106,6 +106,7 @@ export const authenticateUser = async (req, res) => {
     
 }
 
+//here we write your account email and we get an mail with a link to reset the password
 export const forgetPassword = async (req, res) => {
     const { email } = req.body;
 
@@ -133,6 +134,7 @@ export const forgetPassword = async (req, res) => {
     }
 }
 
+//here we verify if the token in the url from the email is valid
 export const checkTokenPassword = async (req, res) => {
     const {token} = req.params;
 
@@ -148,6 +150,7 @@ export const checkTokenPassword = async (req, res) => {
     }
 }
 
+//here we get the new password from the form and post it to the database
 export const newPassword = async (req, res) => {
 
     const {token} = req.params; //we get the token again.
@@ -170,4 +173,63 @@ export const newPassword = async (req, res) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+//this function is used to update the veterinary profile info
+export const editProfile = async(req, res) => {
+    const {id} = req.params;
+    const {name, email, tel, web } = req.body.profile
+    const veterinary = await veterinaryModel.findById(id);
+
+    if(!veterinary) {
+        const error = new Error("Vetirinary is not valid!");
+        return res.status(400).json({msg: error.message});
+    }
+
+    try {
+        veterinary.name = name || veterinary.name;
+        veterinary.email = email || veterinary.email;
+        veterinary.tel = tel || veterinary.tel;
+        veterinary.web = web || veterinary.web;
+
+        const updatedVeterinary = await veterinary.save();
+        res.json(updatedVeterinary)
+
+    } catch (error) {
+        console.log(error)
+    }
+
+
+    console.log(req.body)
+
+}
+
+//this function is used to change the password when you are logged in
+export const updatePassword = async(req, res) => {
+    const {_id} = req.veterinary;
+
+    const {pass, oldPass} = req.body;
+
+    const veterinary = await veterinaryModel.findById(_id);
+
+    //we check if there is a veterinary with that id
+    if(!veterinary){
+        const error = new Error("There is no that veterinary, try again!");
+        return res.status(403).json({msg: error.message});
+    }
+
+    //check if the actual password is correct
+    if(await veterinary.checkPassword(oldPass)) {
+        console.log("contraseña correcta")
+        
+        //if the actual password is correct, then we save the new pasword
+        veterinary.password = pass;
+        await veterinary.save()
+
+        res.json({msg: "Password change successful"});
+    } else {
+        const error = new Error("Old Password is incorrect, try again!");
+        return res.status(403).json({msg: error.message});
+    }
+
 }

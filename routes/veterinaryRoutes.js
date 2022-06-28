@@ -1,5 +1,5 @@
 import express from "express";
-import { profile, signUp, confirm, authenticateUser, forgetPassword, checkTokenPassword, newPassword} from "../controllers/veterinaryController.js";
+import { profile, editProfile, signUp, confirm, authenticateUser, forgetPassword, checkTokenPassword, newPassword, updatePassword} from "../controllers/veterinaryController.js";
 import checkAuth from "../middleware/authMiddleware.js";
 
 const veterinaryRouter = express.Router();
@@ -15,5 +15,7 @@ veterinaryRouter.post("/forget-password/:token", newPassword); //change the user
 
 //private
 veterinaryRouter.get("/profile", checkAuth ,profile);
+veterinaryRouter.put("/profile/:id", checkAuth, editProfile);
+veterinaryRouter.put("/new-password", checkAuth, updatePassword)
 
 export default veterinaryRouter;

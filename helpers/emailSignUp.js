@@ -2,11 +2,13 @@ import nodemailer from "nodemailer";
 
 async function emailSignUp(data) {
     const transport = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
+        service: 'gmail',
         auth: {
           user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD
+          pass: process.env.EMAIL_PASSWORD,
+          clientId: process.env.OAUTH_CLIENTID,
+          clientSecret: process.env.OAUTH_CLIENT_SECRET,
+          refreshToken: process.env.OAUTH_REFRESH_TOKEN
         }
     });
 
@@ -22,8 +24,14 @@ async function emailSignUp(data) {
             
             <p>If you did not create this account, just ignore this email.</p>`
  
-    })
-    console.log("message sent", info.messageId);
+    }, function(err, data) {
+        if (err) {
+          console.log("Error " + err);
+        } else {
+          console.log("Email sent successfully");
+        }
+      })
+    
 }
 
 export default emailSignUp
